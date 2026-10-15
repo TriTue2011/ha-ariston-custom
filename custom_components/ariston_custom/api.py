@@ -199,17 +199,27 @@ class AristonApiClient:
         )
 
     # ----------------------------------------------------------------- energy
-    async def get_energy_total(self, gw: str) -> float:
-        """Tổng điện năng (kWh) từ /v2/velis/reports."""
+    async def get_energy_total(self, gw: str) -> float | None:
+        """Tổng điện năng (kWh).
+
+        Theo fork python-ariston-api: GET /v2/remote/reports/{gw}/consSequencesApi8
+        với usages=Dhw; giá trị = v[-1] của sequence k=2 (DHW total energy), p=1.
+        """
         data = await self._request(
             "GET",
-            f"/v2/velis/reports/{gw}",
-            params={"usages": ENERGY_USAGE_SLP},
+            f"/v2/remote/reports/{gw}/consSequencesApi8",
+            params={"usages": "Dhw"},
         )
-        total = 0.0
         if isinstance(data, list):
             for seq in data:
-                values = seq.get("v") if isinstance(seq, dict) else None
-                if isinstance(values, list):
-                    total += sum(v for v in values if isinstance(v, (int, float)))
-        return total
+                if (
+                    isinstance(seq, dict)
+                    and seq.get("k") == 2
+                    and seq.get("p") == 1
+                ):
+                    values = seq.get("v")
+                    if isinstance(values, list) and values:
+                        last = values[-1]
+                        if isinstance(last, (int, float)):
+                            return float(last)
+        return None

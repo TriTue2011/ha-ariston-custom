@@ -45,8 +45,8 @@ STATE_SENSORS: tuple[AristonSensorDescription, ...] = (
     AristonSensorDescription(
         key="target_temp",
         translation_key="target_temp",
-        state_key="procReqTemp",
-        fallback_key="reqTemp",  # Lydos dùng "reqTemp"
+        state_key="reqTemp",  # Lydos + khớp card water_heater (70°C)
+        fallback_key="procReqTemp",  # SLP
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,

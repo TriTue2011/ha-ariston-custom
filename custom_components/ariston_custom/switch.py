@@ -58,15 +58,16 @@ class AristonLegionellaSwitch(
         return bool(val)
 
     async def async_turn_on(self, **kwargs: Any) -> None:
+        # Fork gửi float 1.0/0.0 cho antilegionella (không phải boolean)
         old = self.coordinator.data.get(SETTING_LEGIONELLA)
         await self.coordinator.client.set_med_setting(
-            self._gw, SETTING_LEGIONELLA, True, old
+            self._gw, SETTING_LEGIONELLA, 1.0, old
         )
         await self.coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         old = self.coordinator.data.get(SETTING_LEGIONELLA)
         await self.coordinator.client.set_med_setting(
-            self._gw, SETTING_LEGIONELLA, False, old
+            self._gw, SETTING_LEGIONELLA, 0.0, old
         )
         await self.coordinator.async_request_refresh()
