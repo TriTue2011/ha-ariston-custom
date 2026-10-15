@@ -90,18 +90,15 @@ class AristonCustomConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, creds: dict[str, str], plant: dict[str, Any]
     ) -> config_entries.ConfigFlowResult:
         """Tạo config entry, lưu usr/pwd để login lại khi token hết hạn."""
-        gw = plant.get("psn")
+        gw = plant.get("gw")
         whe_type = plant.get("wheType")
+        if not gw:
+            return self.async_abort(reason="no_devices")
         # Chống tạo trùng entry cho cùng gateway
         await self.async_set_unique_id(f"{DOMAIN}_{gw}")
         self._abort_if_unique_id_configured()
         if whe_type not in WHE_TYPES_HO_TRO:
-            _LOGGER.warning(
-                "Plant %s có wheType=%s, integration hiện hỗ trợ %s",
-                gw,
-                whe_type,
-                WHE_TYPES_HO_TRO,
-            )
+            return self.async_abort(reason="unsupported_whe_type")
         return self.async_create_entry(
             title=f"Ariston {gw}",
             data={

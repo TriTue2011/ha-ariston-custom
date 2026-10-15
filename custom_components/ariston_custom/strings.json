@@ -4,6 +4,7 @@
       "cannot_connect": "Không kết nối được tới Ariston cloud.",
       "invalid_auth": "Sai email hoặc mật khẩu.",
       "no_devices": "Tài khoản không có thiết bị nào.",
+      "unsupported_whe_type": "Loại bình này chưa được hỗ trợ.",
       "unknown": "Lỗi không mong đợi."
     },
     "step": {
@@ -52,7 +53,7 @@
       "fields": {
         "gw": {
           "name": "Gateway",
-          "description": "Mã gateway của bình (psn)."
+          "description": "Mã gateway của bình (gw)."
         },
         "schedule": {
           "name": "Lịch trình",

@@ -23,9 +23,13 @@ from .coordinator import AristonEnergyCoordinator, AristonStateCoordinator
 
 @dataclass(frozen=True, kw_only=True)
 class AristonSensorDescription(SensorEntityDescription):
-    """Mô tả sensor, kèm key đọc từ state dict."""
+    """Mô tả sensor, kèm key đọc từ state dict.
+
+    state_key: key chính (SLP). fallback_key: key của Lydos khi key chính vắng mặt.
+    """
 
     state_key: str
+    fallback_key: str = ""
 
 
 STATE_SENSORS: tuple[AristonSensorDescription, ...] = (
@@ -33,6 +37,7 @@ STATE_SENSORS: tuple[AristonSensorDescription, ...] = (
         key="water_temp",
         translation_key="water_temp",
         state_key="waterTemp",
+        fallback_key="temp",  # Lydos dùng "temp"
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -41,6 +46,7 @@ STATE_SENSORS: tuple[AristonSensorDescription, ...] = (
         key="target_temp",
         translation_key="target_temp",
         state_key="procReqTemp",
+        fallback_key="reqTemp",  # Lydos dùng "reqTemp"
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
@@ -80,6 +86,7 @@ class AristonStateSensor(CoordinatorEntity[AristonStateCoordinator], SensorEntit
         super().__init__(coordinator)
         self.entity_description = description
         self._state_key = description.state_key
+        self._fallback_key = description.fallback_key
         self._attr_unique_id = f"{DOMAIN}_{gw}_{description.key}"
         self._attr_device_info = DeviceInfo(identifiers={(DOMAIN, gw)})
 
@@ -87,6 +94,8 @@ class AristonStateSensor(CoordinatorEntity[AristonStateCoordinator], SensorEntit
     def native_value(self) -> float | None:
         state = self.coordinator.data.get("state", {})
         value = state.get(self._state_key)
+        if value is None and self._fallback_key:
+            value = state.get(self._fallback_key)
         return float(value) if isinstance(value, (int, float)) else None
 
 

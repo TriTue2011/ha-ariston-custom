@@ -38,12 +38,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     gw: str = entry.data[CONF_GW]
     whe_type = entry.data.get(CONF_WHE_TYPE)
-    if whe_type is not None and whe_type not in WHE_TYPES_HO_TRO:
+    if whe_type not in WHE_TYPES_HO_TRO:
         raise ConfigEntryNotReady(
             f"wheType={whe_type} chưa được hỗ trợ (hiện hỗ trợ {WHE_TYPES_HO_TRO})"
         )
 
-    state_coordinator = AristonStateCoordinator(hass, client, gw, whe_type or 0)
+    state_coordinator = AristonStateCoordinator(hass, client, gw, whe_type)
     await state_coordinator.async_config_entry_first_refresh()
     energy_coordinator = AristonEnergyCoordinator(hass, client, gw)
     await energy_coordinator.async_config_entry_first_refresh()

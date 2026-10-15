@@ -106,7 +106,8 @@ class AristonApiClient:
 
     async def get_med_state(self, gw: str) -> dict[str, Any]:
         """Đọc trạng thái Lydos (medPlantData)."""
-        return await self._request("GET", self._med(gw), params={"umSys": UM_SYS})
+        data = await self._request("GET", self._med(gw), params={"umSys": UM_SYS})
+        return data if isinstance(data, dict) else {}
 
     async def set_med_switch(self, gw: str, on: bool) -> None:
         """Bật/tắt nguồn Lydos. Body boolean trần."""
@@ -156,7 +157,8 @@ class AristonApiClient:
 
     async def get_slp_state(self, gw: str) -> dict[str, Any]:
         """Đọc trạng thái (SlpPlantDataDto): on, waterTemp, comfortTemp, ..."""
-        return await self._request("GET", self._slp(gw), params={"umSys": UM_SYS})
+        data = await self._request("GET", self._slp(gw), params={"umSys": UM_SYS})
+        return data if isinstance(data, dict) else {}
 
     # plantMode KHÔNG có endpoint GET riêng trong APK (IWheSlpPlantDataProxy
     # chỉ có setPlantMode); mode hiện tại nằm sẵn trong SlpPlantDataDto ở
@@ -190,7 +192,6 @@ class AristonApiClient:
         await self._request(
             "POST",
             self._slp(gw, "/temperatures"),
-            params={"umSys": UM_SYS},
             json_body={
                 "new": {"comfort": comfort, "reduced": reduced},
                 "old": {"comfort": old_comfort, "reduced": old_reduced},
