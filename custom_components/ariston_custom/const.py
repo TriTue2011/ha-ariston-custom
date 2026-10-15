@@ -31,8 +31,24 @@ OPERATIVE_MODES = {
     6: "greenplus",
 }
 
-# eWheTypeDto — hiện chỉ hỗ trợ SLP (máy SLIM TOP của Việt)
+# eWheTypeDto (theo python-ariston-api)
+WHE_TYPE_LYDOS = 3
 WHE_TYPE_SLP = 4
+WHE_TYPES_HO_TRO = (WHE_TYPE_LYDOS, WHE_TYPE_SLP)
+
+# PlantData cho từng loại
+PLANT_DATA_MED = "medPlantData"  # Lydos (3)
+PLANT_DATA_SLP = "slpPlantData"  # SLP (4)
+
+# LuxPlantMode cho Lydos (3) — theo python-ariston-api
+LYDOS_MODE_MANUAL = 1
+LYDOS_MODE_PROGRAM = 5
+LYDOS_MODE_BOOST = 9
+LYDOS_MODES = {
+    LYDOS_MODE_MANUAL: "manual",
+    LYDOS_MODE_PROGRAM: "program",
+    LYDOS_MODE_BOOST: "boost",
+}
 
 # eEnergyUsageDto cho bình điện trở
 ENERGY_USAGE_SLP = "DhwResistorElec"

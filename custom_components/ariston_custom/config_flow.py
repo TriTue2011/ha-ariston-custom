@@ -12,7 +12,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import AristonApiClient, AristonApiError, AristonAuthError
-from .const import CONF_GW, CONF_WHE_TYPE, DOMAIN, WHE_TYPE_SLP
+from .const import CONF_GW, CONF_WHE_TYPE, DOMAIN, WHE_TYPES_HO_TRO
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -95,11 +95,12 @@ class AristonCustomConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Chống tạo trùng entry cho cùng gateway
         await self.async_set_unique_id(f"{DOMAIN}_{gw}")
         self._abort_if_unique_id_configured()
-        if whe_type != WHE_TYPE_SLP:
+        if whe_type not in WHE_TYPES_HO_TRO:
             _LOGGER.warning(
-                "Plant %s có wheType=%s, integration hiện chỉ hỗ trợ SLP (4)",
+                "Plant %s có wheType=%s, integration hiện hỗ trợ %s",
                 gw,
                 whe_type,
+                WHE_TYPES_HO_TRO,
             )
         return self.async_create_entry(
             title=f"Ariston {gw}",

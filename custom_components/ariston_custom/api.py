@@ -13,7 +13,7 @@ from typing import Any
 
 import aiohttp
 
-from .const import API_BASE, AUTH_HEADER, ENERGY_USAGE_SLP, UM_SYS
+from .const import API_BASE, AUTH_HEADER, ENERGY_USAGE_SLP, PLANT_DATA_MED, UM_SYS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,6 +99,32 @@ class AristonApiClient:
         """Liệt kê plant của tài khoản (VelisPlantDto)."""
         data = await self._request("GET", "/v2/velis/plants")
         return data if isinstance(data, list) else []
+
+    # --------------------------------------------- Med plantData (Lydos, wheType=3)
+    def _med(self, gw: str, suffix: str = "") -> str:
+        return f"/v2/velis/{PLANT_DATA_MED}/{gw}{suffix}"
+
+    async def get_med_state(self, gw: str) -> dict[str, Any]:
+        """Đọc trạng thái Lydos (medPlantData)."""
+        return await self._request("GET", self._med(gw), params={"umSys": UM_SYS})
+
+    async def set_med_switch(self, gw: str, on: bool) -> None:
+        """Bật/tắt nguồn Lydos. Body boolean trần."""
+        await self._request("POST", self._med(gw, "/switch"), json_body=on)
+
+    async def set_med_mode(self, gw: str, new: int) -> None:
+        """Đổi mode Lydos (Manual=1/Program=5/Boost=9). Body {"new": value}."""
+        await self._request("POST", self._med(gw, "/mode"), json_body={"new": new})
+
+    async def set_med_temperature(self, gw: str, new: float) -> None:
+        """Đặt nhiệt độ Lydos. Body {"new": value}."""
+        await self._request(
+            "POST", self._med(gw, "/temperature"), json_body={"new": new}
+        )
+
+    async def set_med_eco(self, gw: str, on: bool) -> None:
+        """Bật/tắt ECO Lydos. Body boolean trần."""
+        await self._request("POST", self._med(gw, "/switchEco"), json_body=on)
 
     # ------------------------------------------------- SLP plantData (SLIM TOP)
     def _slp(self, gw: str, suffix: str = "") -> str:

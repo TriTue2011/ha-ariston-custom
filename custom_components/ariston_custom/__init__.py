@@ -9,7 +9,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import AristonApiClient, AristonApiError, AristonAuthError
-from .const import CONF_GW, CONF_WHE_TYPE, DOMAIN, WHE_TYPE_SLP
+from .const import CONF_GW, CONF_WHE_TYPE, DOMAIN, WHE_TYPES_HO_TRO
 from .coordinator import AristonEnergyCoordinator, AristonStateCoordinator
 
 PLATFORMS = [Platform.WATER_HEATER, Platform.SENSOR]
@@ -30,12 +30,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     gw: str = entry.data[CONF_GW]
     whe_type = entry.data.get(CONF_WHE_TYPE)
-    if whe_type is not None and whe_type != WHE_TYPE_SLP:
+    if whe_type is not None and whe_type not in WHE_TYPES_HO_TRO:
         raise ConfigEntryNotReady(
-            f"wheType={whe_type} chưa được hỗ trợ (hiện chỉ hỗ trợ SLP=4)"
+            f"wheType={whe_type} chưa được hỗ trợ (hiện hỗ trợ {WHE_TYPES_HO_TRO})"
         )
 
-    state_coordinator = AristonStateCoordinator(hass, client, gw)
+    state_coordinator = AristonStateCoordinator(hass, client, gw, whe_type or 0)
     await state_coordinator.async_config_entry_first_refresh()
     energy_coordinator = AristonEnergyCoordinator(hass, client, gw)
     await energy_coordinator.async_config_entry_first_refresh()
@@ -43,6 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "client": client,
         "gw": gw,
+        "whe_type": whe_type,
         "state_coordinator": state_coordinator,
         "energy_coordinator": energy_coordinator,
     }
