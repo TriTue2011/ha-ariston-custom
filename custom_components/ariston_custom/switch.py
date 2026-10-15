@@ -1,4 +1,4 @@
-"""Platform switch: bật/tắt diệt khuẩn Legionella cho Lydos (wheType=3)."""
+"""Platform switch: Legionella và ECO cho Lydos (wheType=3)."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, SETTING_LEGIONELLA, WHE_TYPE_LYDOS
-from .coordinator import AristonSettingsCoordinator
+from .coordinator import AristonSettingsCoordinator, AristonStateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,12 +23,19 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Chỉ tạo switch Legionella cho Lydos."""
+    """Tạo switch Legionella + ECO cho Lydos."""
     data = hass.data[DOMAIN][entry.entry_id]
     if data.get("whe_type") != WHE_TYPE_LYDOS:
         return
-    coordinator: AristonSettingsCoordinator = data["settings_coordinator"]
-    async_add_entities([AristonLegionellaSwitch(coordinator, data["gw"])])
+    gw = data["gw"]
+    settings_coordinator: AristonSettingsCoordinator = data["settings_coordinator"]
+    state_coordinator: AristonStateCoordinator = data["state_coordinator"]
+    async_add_entities(
+        [
+            AristonLegionellaSwitch(settings_coordinator, gw),
+            AristonEcoSwitch(state_coordinator, gw),
+        ]
+    )
 
 
 class AristonLegionellaSwitch(
@@ -70,4 +77,40 @@ class AristonLegionellaSwitch(
         await self.coordinator.client.set_med_setting(
             self._gw, SETTING_LEGIONELLA, 0.0, old
         )
+        await self.coordinator.async_request_refresh()
+
+
+class AristonEcoSwitch(CoordinatorEntity[AristonStateCoordinator], SwitchEntity):
+    """Công tắc chế độ ECO Lydos (POST /switchEco, body boolean)."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "eco"
+
+    def __init__(self, coordinator: AristonStateCoordinator, gw: str) -> None:
+        super().__init__(coordinator)
+        self._gw = gw
+        self._attr_unique_id = f"{DOMAIN}_{gw}_eco"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, gw)},
+            name=f"Ariston {gw}",
+            manufacturer="Ariston",
+            model="Lydos",
+        )
+
+    @property
+    def is_on(self) -> bool | None:
+        state = self.coordinator.data.get("state", {})
+        # Thử các field có thể chứa trạng thái ECO
+        for key in ("eco", "ecoMode", "isEco"):
+            val = state.get(key)
+            if val is not None:
+                return bool(val)
+        return None
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self.coordinator.client.set_med_eco(self._gw, True)
+        await self.coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self.coordinator.client.set_med_eco(self._gw, False)
         await self.coordinator.async_request_refresh()

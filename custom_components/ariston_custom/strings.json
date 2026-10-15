@@ -38,6 +38,9 @@
     "switch": {
       "legionella": {
         "name": "Diệt khuẩn Legionella"
+      },
+      "eco": {
+        "name": "Chế độ ECO"
       }
     },
     "number": {
@@ -58,6 +61,32 @@
         "schedule": {
           "name": "Lịch trình",
           "description": "Dict PackedWeeklyPlanDto: plans (7 ngày, slices [{from: phút, temp}]), allowedTemp, baseTemp, ..."
+        }
+      }
+    },
+    "set_dhw_schedule_simple": {
+      "name": "Đặt lịch đun đơn giản",
+      "description": "Đặt 1 khung giờ đun cho 1 ngày trong tuần. Tự đọc lịch hiện tại và cập nhật.",
+      "fields": {
+        "gw": {
+          "name": "Gateway",
+          "description": "Mã gateway của bình."
+        },
+        "day": {
+          "name": "Thứ",
+          "description": "0=Thứ 2, 1=Thứ 3, ..., 6=Chủ nhật."
+        },
+        "start": {
+          "name": "Giờ bắt đầu",
+          "description": "Dạng HH:MM, ví dụ 18:30."
+        },
+        "end": {
+          "name": "Giờ kết thúc",
+          "description": "Dạng HH:MM, ví dụ 21:00."
+        },
+        "temp": {
+          "name": "Nhiệt độ",
+          "description": "Nhiệt độ đun trong khung giờ (mặc định 70)."
         }
       }
     }
