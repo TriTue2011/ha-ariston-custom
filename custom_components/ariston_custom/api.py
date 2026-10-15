@@ -126,6 +126,30 @@ class AristonApiClient:
         """Bật/tắt ECO Lydos. Body boolean trần."""
         await self._request("POST", self._med(gw, "/switchEco"), json_body=on)
 
+    # --------------------------------------- Med plantSettings (Lydos, wheType=3)
+    async def get_med_settings(self, gw: str) -> dict[str, Any]:
+        """Đọc plantSettings Lydos: dict key -> value."""
+        data = await self._request("GET", self._med(gw, "/plantSettings"))
+        return data if isinstance(data, dict) else {}
+
+    async def set_med_setting(
+        self, gw: str, key: str, new: Any, old: Any
+    ) -> None:
+        """Ghi một setting Lydos. Body {key: {"new": X, "old": Y}}."""
+        await self._request(
+            "POST", self._med(gw, "/plantSettings"), json_body={key: {"new": new, "old": old}}
+        )
+
+    # ------------------------------------------------- Lịch tuần DHW (remote)
+    async def get_dhw_timeprog(self, gw: str) -> dict[str, Any]:
+        """Đọc lịch tuần nước nóng: PackedWeeklyPlanDto."""
+        data = await self._request("GET", f"/v2/remote/timeProgs/{gw}/Dhw")
+        return data if isinstance(data, dict) else {}
+
+    async def set_dhw_timeprog(self, gw: str, plan: dict[str, Any]) -> None:
+        """Ghi lịch tuần nước nóng: body PackedWeeklyPlanDto."""
+        await self._request("POST", f"/v2/remote/timeProgs/{gw}/Dhw", json_body=plan)
+
     # ------------------------------------------------- SLP plantData (SLIM TOP)
     def _slp(self, gw: str, suffix: str = "") -> str:
         return f"/v2/velis/slpPlantData/{gw}{suffix}"

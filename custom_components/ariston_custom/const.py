@@ -56,6 +56,11 @@ ENERGY_USAGE_SLP = "DhwResistorElec"
 # Poll
 SCAN_INTERVAL_STATE = timedelta(seconds=60)
 SCAN_INTERVAL_ENERGY = timedelta(minutes=30)
+SCAN_INTERVAL_SETTINGS = timedelta(minutes=5)
+
+# Keys plantSettings cho Lydos (medPlantData)
+SETTING_LEGIONELLA = "MedAntilegionellaOnOff"
+SETTING_MAX_TEMP = "MedMaxSetpointTemperature"
 
 # Giới hạn nhiệt độ SLP (plantSettings id 28/25)
 MIN_TEMP = 40.0

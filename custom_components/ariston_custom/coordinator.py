@@ -9,7 +9,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .api import AristonApiClient
-from .const import SCAN_INTERVAL_ENERGY, SCAN_INTERVAL_STATE, WHE_TYPE_LYDOS
+from .const import (
+    SCAN_INTERVAL_ENERGY,
+    SCAN_INTERVAL_SETTINGS,
+    SCAN_INTERVAL_STATE,
+    WHE_TYPE_LYDOS,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,6 +44,25 @@ class AristonStateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # (@SerialName của plantMode trong APK; không tồn tại GET .../plantMode)
         state = await self.client.get_slp_state(self.gw)
         return {"state": state, "plant_mode": state.get("mode")}
+
+
+class AristonSettingsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Poll plantSettings Lydos (5 phút) cho switch Legionella và number nhiệt độ tối đa."""
+
+    def __init__(
+        self, hass: HomeAssistant, client: AristonApiClient, gw: str
+    ) -> None:
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"ariston_custom {gw} settings",
+            update_interval=SCAN_INTERVAL_SETTINGS,
+        )
+        self.client = client
+        self.gw = gw
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        return await self.client.get_med_settings(self.gw)
 
 
 class AristonEnergyCoordinator(DataUpdateCoordinator[float]):

@@ -1,1 +1,64 @@
-{"config":{"error":{"cannot_connect":"Không kết nối được tới Ariston cloud.","invalid_auth":"Sai email hoặc mật khẩu.","no_devices":"Tài khoản không có thiết bị nào.","unknown":"Lỗi không mong đợi."},"step":{"select_plant":{"data":{"gateway":"Thiết bị"},"title":"Chọn bình nóng lạnh"},"user":{"data":{"password":"Mật khẩu","username":"Email Ariston"},"title":"Đăng nhập Ariston"}}},"entity":{"sensor":{"energy":{"name":"Điện năng tiêu thụ"},"target_temp":{"name":"Nhiệt độ mục tiêu"},"water_temp":{"name":"Nhiệt độ nước"}}}}
+{
+  "config": {
+    "error": {
+      "cannot_connect": "Không kết nối được tới Ariston cloud.",
+      "invalid_auth": "Sai email hoặc mật khẩu.",
+      "no_devices": "Tài khoản không có thiết bị nào.",
+      "unknown": "Lỗi không mong đợi."
+    },
+    "step": {
+      "select_plant": {
+        "data": {
+          "gateway": "Thiết bị"
+        },
+        "title": "Chọn bình nóng lạnh"
+      },
+      "user": {
+        "data": {
+          "password": "Mật khẩu",
+          "username": "Email Ariston"
+        },
+        "title": "Đăng nhập Ariston"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "energy": {
+        "name": "Điện năng tiêu thụ"
+      },
+      "target_temp": {
+        "name": "Nhiệt độ mục tiêu"
+      },
+      "water_temp": {
+        "name": "Nhiệt độ nước"
+      }
+    },
+    "switch": {
+      "legionella": {
+        "name": "Diệt khuẩn Legionella"
+      }
+    },
+    "number": {
+      "max_temp": {
+        "name": "Nhiệt độ tối đa"
+      }
+    }
+  },
+  "services": {
+    "set_dhw_schedule": {
+      "name": "Đặt lịch tuần nước nóng",
+      "description": "Ghi lịch đun nước theo tuần (7 ngày, mỗi ngày danh sách khung giờ).",
+      "fields": {
+        "gw": {
+          "name": "Gateway",
+          "description": "Mã gateway của bình (psn)."
+        },
+        "schedule": {
+          "name": "Lịch trình",
+          "description": "Dict PackedWeeklyPlanDto: plans (7 ngày, slices [{from: phút, temp}]), allowedTemp, baseTemp, ..."
+        }
+      }
+    }
+  }
+}
