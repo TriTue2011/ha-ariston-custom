@@ -19,6 +19,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     DOMAIN,
     LYDOS_MODES,
+    LYDOS_MODE_MANUAL,
     MAX_TEMP,
     MIN_TEMP,
     OPERATIVE_MODES,
@@ -157,6 +158,11 @@ class AristonWaterHeater(CoordinatorEntity[AristonStateCoordinator], WaterHeater
             return
         client = self.coordinator.client
         if self._is_lydos:
+            # Lydos ở mode Program (lịch trình) sẽ bỏ qua lệnh đặt nhiệt độ thủ công.
+            # Tự chuyển sang Manual trước để lệnh có tác dụng.
+            mode = self._state.get("mode")
+            if mode != LYDOS_MODE_MANUAL:
+                await client.set_med_mode(self._gw, LYDOS_MODE_MANUAL)
             await client.set_med_temperature(self._gw, float(temp))
         else:
             state = self._state
