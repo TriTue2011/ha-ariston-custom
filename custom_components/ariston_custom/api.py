@@ -41,9 +41,15 @@ class AristonApiClient:
         self._token: str | None = None
 
     async def login(self) -> str:
-        """Đăng nhập, trả về auth token. Chỉ cần usr + pwd."""
+        """Đăng nhập, trả về auth token. Gửi đủ body như app thật."""
         url = f"{API_BASE}/v2/accounts/login"
-        payload = {"usr": self._username, "pwd": self._password}
+        payload = {
+            "usr": self._username,
+            "pwd": self._password,
+            "imp": False,
+            "notTrack": True,
+            "appInfo": {"appId": "com.remotethermo.aristonnet", "appVer": "7.0.2", "os": "android"},
+        }
         async with self._session.post(url, json=payload) as resp:
             if resp.status != 200:
                 raise AristonAuthError(f"login thất bại: HTTP {resp.status}")
