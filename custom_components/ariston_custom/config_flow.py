@@ -73,12 +73,12 @@ class AristonCustomConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Bước 2 (nếu nhiều plant): chọn thiết bị."""
         if user_input is not None:
             plant = next(
-                p for p in self._plants if p.get("psn") == user_input[CONF_GW]
+                p for p in self._plants if p.get("gw") == user_input[CONF_GW]
             )
             return self._create_entry(self._creds, plant)
 
         options = {
-            p.get("psn"): f"{p.get('psn')} (wheType {p.get('wheType')})"
+            p.get("gw"): f"{p.get('gw')} (wheType {p.get('wheType')})"
             for p in self._plants
         }
         return self.async_show_form(
