@@ -43,6 +43,7 @@ class AristonApiClient:
     async def login(self) -> str:
         """Đăng nhập, trả về auth token. Gửi đủ body như app thật."""
         url = f"{API_BASE}/v2/accounts/login"
+        headers = {"User-Agent": "RestSharp/106.11.7.0"}
         payload = {
             "usr": self._username,
             "pwd": self._password,
@@ -50,7 +51,7 @@ class AristonApiClient:
             "notTrack": True,
             "appInfo": {"appId": "com.remotethermo.aristonnet", "appVer": "7.0.2", "os": "android"},
         }
-        async with self._session.post(url, json=payload) as resp:
+        async with self._session.post(url, json=payload, headers=headers) as resp:
             if resp.status != 200:
                 raise AristonAuthError(f"login thất bại: HTTP {resp.status}")
             data = await resp.json()
@@ -73,7 +74,11 @@ class AristonApiClient:
         if self._token is None:
             await self.login()
         url = f"{API_BASE}{path}"
-        headers = {"Content-Type": "application/json", AUTH_HEADER: self._token}
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "RestSharp/106.11.7.0",
+            AUTH_HEADER: self._token,
+        }
         async with self._session.request(
             method, url, headers=headers, params=params, json=json_body
         ) as resp:
