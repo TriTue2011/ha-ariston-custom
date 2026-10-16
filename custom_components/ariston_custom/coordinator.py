@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .api import AristonApiClient
 from .const import (
     SCAN_INTERVAL_ENERGY,
+    SCAN_INTERVAL_SCHEDULE,
     SCAN_INTERVAL_SETTINGS,
     SCAN_INTERVAL_STATE,
     WHE_TYPE_LYDOS,
@@ -82,3 +83,22 @@ class AristonEnergyCoordinator(DataUpdateCoordinator[float]):
 
     async def _async_update_data(self) -> float:
         return await self.client.get_energy_total(self.gw)
+
+
+class AristonScheduleCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Poll lịch tuần DHW (PackedWeeklyPlanDto, 15 phút) cho sensor hiển thị lịch."""
+
+    def __init__(
+        self, hass: HomeAssistant, client: AristonApiClient, gw: str
+    ) -> None:
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"ariston_custom {gw} schedule",
+            update_interval=SCAN_INTERVAL_SCHEDULE,
+        )
+        self.client = client
+        self.gw = gw
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        return await self.client.get_dhw_timeprog(self.gw)

@@ -33,6 +33,9 @@
       },
       "water_temp": {
         "name": "Nhiệt độ nước"
+      },
+      "dhw_schedule": {
+        "name": "Lịch đun nước nóng"
       }
     },
     "switch": {

@@ -14,6 +14,7 @@ from .api import AristonApiClient, AristonApiError, AristonAuthError
 from .const import CONF_GW, CONF_WHE_TYPE, DOMAIN, WHE_TYPE_LYDOS, WHE_TYPES_HO_TRO
 from .coordinator import (
     AristonEnergyCoordinator,
+    AristonScheduleCoordinator,
     AristonSettingsCoordinator,
     AristonStateCoordinator,
 )
@@ -55,6 +56,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         settings_coordinator = AristonSettingsCoordinator(hass, client, gw)
         await settings_coordinator.async_config_entry_first_refresh()
 
+    # Schedule coordinator: lịch tuần DHW hiện tại trên máy
+    schedule_coordinator = AristonScheduleCoordinator(hass, client, gw)
+    await schedule_coordinator.async_config_entry_first_refresh()
+
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "client": client,
         "gw": gw,
@@ -62,6 +67,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "state_coordinator": state_coordinator,
         "energy_coordinator": energy_coordinator,
         "settings_coordinator": settings_coordinator,
+        "schedule_coordinator": schedule_coordinator,
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -133,6 +139,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     "defaultTemp": current.get("defaultTemp", 40),
                 }
                 await client.set_dhw_timeprog(target_gw, new_schedule)
+                # Làm mới sensor lịch ngay
+                sched = entry_data.get("schedule_coordinator")
+                if sched is not None:
+                    await sched.async_request_refresh()
                 return
         raise ValueError(f"Không tìm thấy thiết bị với gw={target_gw}")
 

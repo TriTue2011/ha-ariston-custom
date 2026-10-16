@@ -57,6 +57,7 @@ ENERGY_USAGE_SLP = "DhwResistorElec"
 SCAN_INTERVAL_STATE = timedelta(seconds=60)
 SCAN_INTERVAL_ENERGY = timedelta(minutes=30)
 SCAN_INTERVAL_SETTINGS = timedelta(minutes=5)
+SCAN_INTERVAL_SCHEDULE = timedelta(minutes=15)
 
 # Keys plantSettings cho Lydos (medPlantData)
 SETTING_LEGIONELLA = "MedAntilegionellaOnOff"
